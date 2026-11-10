@@ -65,7 +65,7 @@
   и деньги — сомнительное запускай только в Bottles.
 - **Россия.** Discord и YouTube без VPN работают плохо — для этого стоит **Happ** (нужна твоя
   подписка/ключ от VPN-сервиса).
-- **Vision** ставится из официального пакета разработчика для Arch Linux (AUR).
+- **Vision** ставится официальной сборкой для Linux прямо с сайта разработчика (всегда последняя версия, обновляется сам).
 - **Шифрование диска** не включено (ты так выбрал), вход — автоматический.
 
 ---
@@ -169,10 +169,10 @@
 |---|---|
 | **VPN (Happ)** | Меню → **Happ** → добавь свою подписку (ссылку от VPN-сервиса) → подключись. Для Discord/YouTube включи режим **TUN** (весь трафик). |
 | **Браузер** | Vivaldi уже стоит по умолчанию → войди в аккаунт/синхронизацию. |
-| **Steam** | Войди → *Steam → Настройки → Совместимость* → включи **«Steam Play для всех остальных продуктов»**. Добавь второй диск: *Настройки → Хранилище → Добавить диск* → `/mnt/data/SteamLibrary`. CS2 и Dota 2 лучше ставить на SSD (быстрее загрузки), большие одиночные игры — на HDD. |
+| **Steam** | Войди → *Steam → Настройки → Совместимость* → включи **«Steam Play для всех остальных продуктов»**. Добавь второй диск: *Настройки → Хранилище → Добавить диск* → `/mnt/data/SteamLibrary`. CS2 и Dota 2 лучше ставить на SSD (быстрее загрузки), большие одиночные игры — на HDD. Для максимальной производительности в игре: ПКМ по игре → *Свойства* → *Параметры запуска* → `gamemoderun %command%`. |
 | **Epic / GOG** | Меню → **Heroic** → войди. Папку игр можно указать `/mnt/data/Games`. |
 | **Battle.net, EA, Ubisoft** | Меню → **Lutris** → `+` → *Найти установщики на сайте Lutris* → введи название (например *Battle.net*) → *Установить*. |
-| **Vision** | Меню → **Vision** → войди в аккаунт. |
+| **Vision** | Меню (или док) → **Vision** → войди в аккаунт. Программа лежит в папке `~/Applications` и обновляется сама. |
 | **Telegram / Discord** | Просто открой и войди (Discord в России — с включённым Happ). |
 | **Мышь для игр** | *Параметры системы → Мышь* → **Профиль ускорения: Плоский (Flat)** — как в Windows с выключенным «повышенной точностью». |
 | **Свои обои** | Положи картинки (например, с Pinterest) в папку **Изображения → Wallpapers**, затем ПКМ по рабочему столу → *Настроить рабочий стол и обои*. |
@@ -236,9 +236,9 @@
 - **Ядро и база:** linux-zen, amd-ucode, Btrfs (zstd), zram, GRUB с меню снимков, Plymouth, NetworkManager, ufw (файрвол), PipeWire
 - **Видео:** Mesa (RADV/Vulkan, VA-API), 32-битные библиотеки для игр
 - **Plasma 6.8:** Plasma Login, Dolphin, Konsole, Kate, Ark, Gwenview, Okular, Spectacle, KCalc, Filelight, KDE Partition Manager, Haruna (видео)
-- **Работа:** Vivaldi, Vision (AUR), Happ (AUR), Telegram, Discord, OBS Studio, Kdenlive, ONLYOFFICE (Flatpak), Obsidian, qBittorrent, Figma (веб-приложение)
+- **Работа:** Vivaldi, Vision (официальный AppImage), Happ (AUR), Telegram, Discord, OBS Studio, Kdenlive, ONLYOFFICE (Flatpak), Obsidian, qBittorrent, Figma (веб-приложение)
 - **Игры:** Steam, Proton-GE (AUR), Heroic (AUR), Lutris, Bottles (Flatpak), Wine, Winetricks, umu-launcher, GameMode
-- **Оформление:** тема «Лесная ночь» (цвета, Kvantum, Konsole, раскладка панелей), иконки Colloid, курсор Bibata, Krohnkite (тайлинг), шрифты Inter, JetBrains Mono Nerd, Noto (+ эмодзи), обои KDE
+- **Оформление:** тема «Лесная ночь» (цвета, Kvantum, Konsole, раскладка панелей), иконки Colloid, курсор Bibata, Krohnkite 0.9.11 (тайлинг), шрифты Inter, JetBrains Mono Nerd, Noto (+ эмодзи), обои KDE
 - **Утилиты:** paru (AUR), arch-update (обновления в трее), Btrfs Assistant, btop, fastfetch, eza, bat, 7zip, unrar, Flatpak
 
 Списки лежат в папке [`packages/`](packages/).

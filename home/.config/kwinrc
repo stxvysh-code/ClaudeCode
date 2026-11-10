@@ -25,7 +25,7 @@ screenGapLeft=10
 screenGapRight=10
 screenGapTop=10
 floatUtility=true
-floatingClass=steam,org.kde.kcalc,kcalc,org.kde.plasma-welcome,plasma-welcome,org.kde.kdialog,kdialog,zenity,yad,happ,Happ,org.kde.ark,lutris,net.lutris.Lutris,com.usebottles.bottles,org.kde.polkit-kde-authentication-agent-1,pinentry-qt,xdg-desktop-portal-kde,org.freedesktop.impl.portal.desktop.kde
+floatConfig=steam,org.kde.kcalc,kcalc,org.kde.plasma-welcome,org.kde.kdialog,kdialog,zenity,yad,happ,Happ,org.kde.ark,net.lutris.Lutris,lutris,com.usebottles.bottles,pinentry-qt,org.freedesktop.impl.portal.desktop.kde,xdg-desktop-portal-kde,org.kde.kinfocenter:auto=1
 ignoreClass=krunner,yakuake,spectacle,kded5,xwaylandvideobridge,plasmashell,ksplashqml,org.kde.plasmashell,org.kde.polkit-kde-authentication-agent-1,org.kde.kruler,kruler,kwin_wayland,ksmserver-logout-greeter,org.kde.spectacle
 soleWindowWidth=100
 soleWindowHeight=100

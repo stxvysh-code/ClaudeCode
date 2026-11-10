@@ -105,10 +105,6 @@ setup_user() {
     if ! id "$USERNAME" &>/dev/null; then
         useradd -m -G wheel -s /bin/zsh -c "${USERNAME^}" "$USERNAME"
     fi
-    local g
-    for g in gamemode video audio; do
-        getent group "$g" >/dev/null && usermod -aG "$g" "$USERNAME"
-    done
 
     local pass
     pass=$(cat /root/.arch-forest-pass)
@@ -146,6 +142,23 @@ set_grub_var() {   # set_grub_var KEY VALUE  (в /etc/default/grub)
     fi
 }
 
+# Генерация меню GRUB. Если не сработало только меню снимков (grub-btrfs) —
+# создаём обычное меню, чтобы система гарантированно загружалась.
+make_grub_cfg() {
+    mkdir -p /boot/grub
+    if grub-mkconfig -o /boot/grub/grub.cfg; then
+        return 0
+    fi
+    warn "Меню снимков не сгенерировалось — создаю меню загрузки без него"
+    chmod -x /etc/grub.d/41_snapshots-btrfs 2>/dev/null || true
+    if ! grub-mkconfig -o /boot/grub/grub.cfg; then
+        chmod +x /etc/grub.d/41_snapshots-btrfs 2>/dev/null || true
+        return 1
+    fi
+    chmod +x /etc/grub.d/41_snapshots-btrfs 2>/dev/null || true
+    note_failed "меню снимков GRUB: выполни  sudo grub-mkconfig -o /boot/grub/grub.cfg"
+}
+
 setup_bootloader() {
     info "Загрузчик GRUB с меню снимков системы"
     set_grub_var GRUB_DEFAULT 0
@@ -165,9 +178,9 @@ setup_bootloader() {
     local reg=/usr/share/fonts/noto/NotoSans-Regular.ttf bold=/usr/share/fonts/noto/NotoSans-Bold.ttf
     [[ -f $reg ]] || reg=/usr/share/fonts/TTF/DejaVuSans.ttf
     [[ -f $bold ]] || bold=/usr/share/fonts/TTF/DejaVuSans-Bold.ttf
-    if grub-mkfont -s 22 -n "Forest Regular 22" -o "$theme/forest-regular-22.pf2" "$reg" &&
-       grub-mkfont -s 16 -n "Forest Regular 16" -o "$theme/forest-regular-16.pf2" "$reg" &&
-       grub-mkfont -s 22 -n "Forest Bold 22" -o "$theme/forest-bold-22.pf2" "$bold"; then
+    if grub-mkfont -s 22 -n "Forest Regular 22" -o "$theme/forest-regular-22.pf2" "$reg" 2>/dev/null &&
+       grub-mkfont -s 16 -n "Forest Regular 16" -o "$theme/forest-regular-16.pf2" "$reg" 2>/dev/null &&
+       grub-mkfont -s 22 -n "Forest Bold 22" -o "$theme/forest-bold-22.pf2" "$bold" 2>/dev/null; then
         set_grub_var GRUB_THEME "\"$theme/theme.txt\""
     else
         warn "Не удалось подготовить шрифты темы GRUB — будет стандартное меню"
@@ -183,7 +196,7 @@ setup_bootloader() {
         # Запасной загрузчик по стандартному пути EFI/BOOT/BOOTX64.EFI (на случай сброса BIOS)
         grub-install --target=x86_64-efi --efi-directory=/efi --removable
     fi
-    grub-mkconfig -o /boot/grub/grub.cfg
+    make_grub_cfg
 }
 
 # ----------------------------------------------------------------------------
@@ -252,9 +265,11 @@ as_user() {
 }
 
 install_aur() {
-    info "Программы из AUR (Happ, Vision, Heroic, Proton-GE, курсор, тайлинг)"
-    echo "$USERNAME ALL=(ALL:ALL) NOPASSWD: ALL" > "$BUILD_SUDOERS"
+    info "Программы из AUR (Happ, Heroic, Proton-GE, курсор, arch-update)"
+    printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\nDefaults:%s env_keep += "https_proxy HTTPS_PROXY http_proxy HTTP_PROXY"\n' \
+        "$USERNAME" "$USERNAME" > "$BUILD_SUDOERS"
     chmod 440 "$BUILD_SUDOERS"
+    visudo -cf "$BUILD_SUDOERS" >/dev/null || { rm -f "$BUILD_SUDOERS"; note_failed "AUR: ошибка sudoers"; return 0; }
 
     if ! command -v paru >/dev/null; then
         local build="$USER_HOME/.cache/arch-forest-build"
@@ -285,6 +300,50 @@ install_aur() {
 }
 
 # ----------------------------------------------------------------------------
+# Vision — официальный AppImage с сайта разработчика (ссылка всегда ведёт на последнюю
+# версию). Лежит в ~/Applications, поэтому встроенное автообновление может его заменять.
+install_vision() {
+    info "Vision (антидетект-браузер, официальная сборка для Linux)"
+    local dir="$USER_HOME/Applications" app="$USER_HOME/Applications/Vision.AppImage"
+    install -d -o "$USERNAME" -g "$USERNAME" "$dir"
+    if ! retry 3 curl -fL --connect-timeout 20 -o "$app.part" https://v1.empr.cloud/get/linux-appimage; then
+        rm -f "$app.part"
+        note_failed "Vision: скачай «Linux AppImage» с https://browser.vision/download и положи в ~/Applications"
+        return 0
+    fi
+    mv -f "$app.part" "$app"
+    chmod 755 "$app"
+
+    # Значок достаём из AppImage как из архива (ничего не запуская)
+    local off tmp=/tmp/vision-icon
+    off=$(python3 -c 'import struct,sys
+d=open(sys.argv[1],"rb").read(65536)
+print(struct.unpack_from("<Q",d,0x28)[0]+struct.unpack_from("<H",d,0x3A)[0]*struct.unpack_from("<H",d,0x3C)[0])' "$app" 2>/dev/null || true)
+    rm -rf "$tmp"
+    if [[ -n "$off" ]] && unsquashfs -q -o "$off" -d "$tmp" "$app" \
+            usr/share/icons/hicolor/128x128/apps/Vision.png >/dev/null 2>&1; then
+        install -D -m 644 "$tmp/usr/share/icons/hicolor/128x128/apps/Vision.png" \
+            "$USER_HOME/.local/share/icons/hicolor/128x128/apps/vision-browser.png"
+    fi
+    rm -rf "$tmp"
+
+    mkdir -p "$USER_HOME/.local/share/applications"
+    cat > "$USER_HOME/.local/share/applications/vision-browser.desktop" <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Vision
+Comment=Antidetect browser
+Comment[ru]=Антидетект-браузер
+Exec=$app %U
+Icon=vision-browser
+StartupWMClass=Vision
+Categories=Network;WebBrowser;
+Terminal=false
+DESKTOP
+    ok "Vision установлен"
+}
+
+# ----------------------------------------------------------------------------
 install_theme_system() {
     info "Оформление: цвета, Kvantum, Konsole, глобальная тема"
     install -d /usr/share/color-schemes /usr/share/Kvantum /usr/share/konsole /usr/share/plasma/look-and-feel
@@ -294,6 +353,12 @@ install_theme_system() {
     cp -a "$AF_DIR/theme/konsole/." /usr/share/konsole/
     rm -rf /usr/share/plasma/look-and-feel/org.archforest.desktop
     cp -a "$AF_DIR/theme/look-and-feel/org.archforest.desktop" /usr/share/plasma/look-and-feel/
+
+    info "Тайлинг окон: Krohnkite 0.9.11 (KWin-скрипт, MIT)"
+    rm -rf /usr/share/kwin/scripts/krohnkite
+    install -d /usr/share/kwin/scripts/krohnkite
+    bsdtar -xf "$AF_DIR/theme/kwin/krohnkite.kwinscript" -C /usr/share/kwin/scripts/krohnkite
+    [[ -f /usr/share/kwin/scripts/krohnkite/metadata.json ]] || note_failed "Krohnkite (тайлинг)"
 
     info "Иконки Colloid (зелёные, Everforest)"
     local tmp=/tmp/colloid-icons
@@ -333,13 +398,18 @@ setup_user_home() {
         ln -sfn "$DATA_MOUNT" "$USER_HOME/HDD"
     fi
     chown -R "$USERNAME:$USERNAME" "$USER_HOME"
+
+    # GameMode (ускорение игр) требует группы gamemode. Добавляем ПОСЛЕ сборки AUR:
+    # её лимит nice (pam_limits) не должен мешать sudo во время установки.
+    # Группы audio/video не нужны — доступ к звуку и видео даёт logind.
+    if getent group gamemode >/dev/null; then usermod -aG gamemode "$USERNAME"; fi
 }
 
 # ----------------------------------------------------------------------------
 finalize() {
     info "Снимок «чистая система» (к нему всегда можно вернуться)"
     snapper --no-dbus -c root create -t single -d "arch-forest: чистая установка" --userdata important=yes || true
-    grub-mkconfig -o /boot/grub/grub.cfg >/dev/null 2>&1 || true
+    make_grub_cfg >/dev/null 2>&1 || true
 
     info "Очистка кэша пакетов"
     paccache -rk0 >/dev/null 2>&1 || true
@@ -353,13 +423,17 @@ main() {
     install_overlay_files
     setup_user
     setup_initramfs
-    setup_snapper
     setup_login
     setup_services
     install_theme_system
-    install_flatpaks
-    install_aur
+    # Сбой в программах из интернета (Flathub/AUR) НЕ должен останавливать установку:
+    # записываем в список «поставить потом» и идём дальше
+    install_flatpaks || note_failed "Flatpak: шаг завершился с ошибкой (см. журнал)"
+    install_aur || note_failed "AUR: шаг завершился с ошибкой (см. журнал)"
+    install_vision || note_failed "Vision: скачай с https://browser.vision/download"
+    rm -f "$BUILD_SUDOERS"
     setup_user_home
+    setup_snapper
     setup_bootloader
     finalize
     ok "Настройка внутри системы завершена"

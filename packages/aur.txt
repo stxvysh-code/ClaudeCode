@@ -1,9 +1,7 @@
 # Пакеты из AUR (собираются через paru). Если какой-то не соберётся —
 # установка продолжится, а в конце будет список того, что поставить вручную.
 happ-desktop-bin             # VPN/прокси-клиент Happ (официальная сборка с GitHub)
-vision-browser               # антидетект-браузер Vision (пакет от разработчика)
 heroic-games-launcher-bin    # Epic Games + GOG
 proton-ge-custom-bin         # улучшенный Proton для Steam
 bibata-cursor-theme-bin      # красивый курсор
-kwin-scripts-krohnkite       # тайлинг окон
 arch-update                  # уведомления об обновлениях в трее

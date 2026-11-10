@@ -366,9 +366,17 @@ install_base() {
 write_fstab() {
     step "Таблица дисков (fstab)"
     genfstab -U "$TARGET" > "$TARGET/etc/fstab"
-    if [[ "$TEST_MODE" == "1" ]] && grep -qE '^tmpfs[[:space:]]+/efi[[:space:]]' "$TARGET/etc/fstab"; then
-        sed -i -E '\#^tmpfs[[:space:]]+/efi[[:space:]]#d' "$TARGET/etc/fstab"
-        echo "UUID=$(blkid -s UUID -o value "$ESP") /efi vfat rw,fmask=0077,dmask=0077 0 2" >> "$TARGET/etc/fstab"
+    # Надёжность: если где-то записано имя устройства (/dev/sdX), меняем на UUID —
+    # имена дисков могут поменяться местами, а UUID — никогда
+    local dev uuid
+    while read -r dev; do
+        uuid=$(blkid -s UUID -o value "$dev" 2>/dev/null || true)
+        [[ -n "$uuid" ]] && sed -i -E "s#^${dev}[[:space:]]+#UUID=${uuid}\t#" "$TARGET/etc/fstab"
+    done < <(awk '$1 ~ /^\/dev\// {print $1}' "$TARGET/etc/fstab" | sort -u)
+    # EFI-раздел должен быть в fstab (в тестовой песочнице он не смонтирован)
+    sed -i -E '\#^tmpfs[[:space:]]+/efi[[:space:]]#d' "$TARGET/etc/fstab"
+    if ! grep -qE '^[^#][^[:space:]]*[[:space:]]+/efi[[:space:]]' "$TARGET/etc/fstab"; then
+        printf 'UUID=%s\t/efi\tvfat\trw,fmask=0077,dmask=0077\t0 2\n' "$(blkid -s UUID -o value "$ESP")" >> "$TARGET/etc/fstab"
     fi
     # subvolid мешает откату снимков — убираем, оставляем только subvol=
     sed -i -E 's/,?subvolid=[0-9]+//' "$TARGET/etc/fstab"
@@ -447,4 +455,7 @@ main() {
     finish
 }
 
-main "$@"
+# Запуск (если файл подключён через source — например, для тестов — main не вызывается)
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

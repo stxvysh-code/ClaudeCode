@@ -69,5 +69,7 @@ jq
 unrar
 unzip
 zip
-fuse2                    # для AppImage-программ
+fuse2                    # для AppImage-программ (Vision и др.)
+squashfs-tools           # достать значок из AppImage при установке
+python
 flatpak

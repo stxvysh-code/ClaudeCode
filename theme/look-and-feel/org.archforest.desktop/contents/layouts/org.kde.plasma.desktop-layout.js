@@ -84,6 +84,7 @@ tasks.currentConfigGroup = ["General"];
 tasks.writeConfig("launchers", existing([
     "org.kde.dolphin.desktop",
     "vivaldi-stable.desktop",
+    "vision-browser.desktop",
     "org.telegram.desktop.desktop",
     "discord.desktop",
     "steam.desktop",
