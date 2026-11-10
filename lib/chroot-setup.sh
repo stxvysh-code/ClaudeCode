@@ -254,10 +254,13 @@ install_flatpaks() {
         note_failed "flatpak: не удалось подключить Flathub"
         return 0
     fi
+    info "Скачивается около 1,5–2 ГБ — это может занять 5–40 минут, экран подолгу не меняется. Это нормально."
     local app
     while read -r app; do
         [[ -n "$app" ]] || continue
-        retry 3 flatpak install --system -y --noninteractive flathub "$app" >/dev/null ||
+        info "Flatpak: $app"
+        # timeout — защита от вечного зависания загрузки; при повторе уже скачанное не качается заново
+        retry 3 timeout 40m flatpak install --system -y --noninteractive flathub "$app" ||
             note_failed "flatpak install flathub $app"
     done < <(read_pkg_list "$AF_DIR/packages/flatpak.txt")
 }
