@@ -28,6 +28,14 @@ trap 'rm -f "$BUILD_SUDOERS" /root/.arch-forest-pass' EXIT
 
 note_failed() { echo "$*" >> "$FAILED"; warn "Не получилось: $*"; }
 
+# copy_tree SRC DST — копирует файлы по одному (права 644), не трогая права существующих папок
+copy_tree() {
+    local src=$1 dst=$2 f
+    while IFS= read -r -d '' f; do
+        install -D -m 644 "$src/$f" "$dst/$f"
+    done < <(cd "$src" && find . -type f -printf '%P\0')
+}
+
 # ----------------------------------------------------------------------------
 setup_basics() {
     info "Часовой пояс, язык, раскладка, имя компьютера"
@@ -79,7 +87,7 @@ setup_pacman() {
 # ----------------------------------------------------------------------------
 install_overlay_files() {
     info "Системные настройки (zram, звук, планировщик дисков, обновления GRUB)"
-    cp -a --no-preserve=ownership "$AF_DIR/files/." /
+    copy_tree "$AF_DIR/files" ""
     chmod 755 /usr/local/bin/arch-forest-* /usr/local/bin/update-system
 
     # Чёткие шрифты: субпиксельное сглаживание
@@ -181,6 +189,7 @@ setup_bootloader() {
 # ----------------------------------------------------------------------------
 setup_snapper() {
     info "Снимки системы (snapper): автоматически до/после каждого обновления"
+    install -d /etc/snapper/configs
     cp /usr/share/snapper/config-templates/default /etc/snapper/configs/root
     local cfg=/etc/snapper/configs/root kv k v
     for kv in 'SUBVOLUME="/"' 'FSTYPE="btrfs"' 'ALLOW_GROUPS="wheel"' 'SYNC_ACL="yes"' \
@@ -309,7 +318,7 @@ setup_user_home() {
         install -d -o "$USERNAME" -g "$USERNAME" "$USER_HOME/$d"
     done
 
-    cp -a "$AF_DIR/home/." "$USER_HOME/"
+    copy_tree "$AF_DIR/home" "$USER_HOME"
     # Подстановки в конфигах
     local tiling=false
     [[ "$TILING_ENABLED" == "1" ]] && tiling=true

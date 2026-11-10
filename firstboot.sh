@@ -52,6 +52,8 @@ kwriteconfig6 --file kdeglobals --group Icons --key Theme "$ICONS"
 [[ -x /usr/lib/plasma-changeicons ]] && /usr/lib/plasma-changeicons "$ICONS" || true
 if [[ -d /usr/share/icons/Bibata-Modern-Classic ]]; then
     plasma-apply-cursortheme Bibata-Modern-Classic || true
+else
+    plasma-apply-cursortheme breeze_cursors || true      # курсор Bibata не установился — стандартный
 fi
 plasma-apply-wallpaperimage "$WALLPAPER" || true
 

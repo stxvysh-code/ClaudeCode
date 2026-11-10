@@ -80,14 +80,14 @@ preflight() {
     setfont ter-v22b 2>/dev/null || setfont cyr-sun16 2>/dev/null || true
 
     info "Проверяю интернет..."
-    local i
+    local i url online=0
     for i in $(seq 1 30); do
-        if curl -fsS --max-time 5 -o /dev/null https://archlinux.org 2>/dev/null; then break; fi
+        for url in https://archlinux.org https://mirror.yandex.ru/archlinux/ https://geo.mirror.pkgbuild.com/; do
+            if curl -fsS --max-time 6 -o /dev/null "$url" 2>/dev/null; then online=1; break 2; fi
+        done
         sleep 2
-        if (( i == 30 )); then
-            die "Нет интернета. Проверь, что кабель подключён к компьютеру и роутеру, и запусти установку снова."
-        fi
     done
+    (( online == 1 )) || die "Нет интернета. Проверь, что кабель подключён к компьютеру и роутеру, и запусти установку снова."
     ok "Интернет есть"
 
     if [[ "$TEST_MODE" != "1" ]]; then

@@ -54,7 +54,7 @@ top.lengthMode = "fill";
 
 var kickoff = top.addWidget("org.kde.plasma.kickoff");
 kickoff.currentConfigGroup = ["General"];
-kickoff.writeConfig("icon", "archlinux-logo");
+kickoff.writeConfig("icon", "distributor-logo-archlinux");
 
 top.addWidget("org.kde.plasma.pager");
 top.addWidget("org.kde.plasma.panelspacer");
