@@ -267,13 +267,13 @@ install_flatpaks() {
 
 # ----------------------------------------------------------------------------
 as_user() {
-    sudo -u "$USERNAME" -H env HOME="$USER_HOME" \
+    sudo -u "$USERNAME" -H env HOME="$USER_HOME" SNAP_PAC_SKIP=y \
         ${https_proxy:+https_proxy="$https_proxy"} ${HTTPS_PROXY:+HTTPS_PROXY="$HTTPS_PROXY"} "$@"
 }
 
 install_aur() {
     info "Программы из AUR (Happ, Heroic, Proton-GE, курсор, arch-update)"
-    printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\nDefaults:%s env_keep += "https_proxy HTTPS_PROXY http_proxy HTTP_PROXY"\n' \
+    printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\nDefaults:%s env_keep += "https_proxy HTTPS_PROXY http_proxy HTTP_PROXY SNAP_PAC_SKIP"\n' \
         "$USERNAME" "$USERNAME" > "$BUILD_SUDOERS"
     chmod 440 "$BUILD_SUDOERS"
     visudo -cf "$BUILD_SUDOERS" >/dev/null || { rm -f "$BUILD_SUDOERS"; note_failed "AUR: ошибка sudoers"; return 0; }
