@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Figma
+Comment=Figma in its own window (Vivaldi)
+Comment[ru]=Figma в отдельном окне (через Vivaldi)
+Icon=figma
+Exec=vivaldi-stable --app=https://www.figma.com/files --class=figma
+StartupWMClass=figma
+Categories=Graphics;Development;

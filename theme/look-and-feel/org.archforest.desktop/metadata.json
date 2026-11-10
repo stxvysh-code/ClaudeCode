@@ -1,0 +1,20 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "arch-forest"
+            }
+        ],
+        "Category": "",
+        "Description": "Dark forest: green accents, blur, thin top panel and a floating dock",
+        "Description[ru]": "Тёмный лес: зелёные акценты, размытие, тонкая верхняя панель и плавающий док",
+        "Id": "org.archforest.desktop",
+        "License": "GPL-3.0-or-later",
+        "Name": "Arch Forest",
+        "Name[ru]": "Лесная ночь",
+        "Version": "1.0",
+        "Website": "https://github.com/stxvysh-code/ClaudeCode"
+    },
+    "X-Plasma-APIVersion": "2"
+}

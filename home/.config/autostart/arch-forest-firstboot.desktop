@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=arch-forest first boot
+Exec=/opt/arch-forest/firstboot.sh
+X-KDE-autostart-phase=2
+NoDisplay=true

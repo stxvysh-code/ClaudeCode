@@ -1,0 +1,53 @@
+# Строка приглашения терминала — палитра «лесная ночь»
+"$schema" = 'https://starship.rs/config-schema.json'
+add_newline = true
+palette = "forest"
+format = """
+[╭─](sage)$os$username$directory$git_branch$git_status$cmd_duration
+[╰─](sage)$character"""
+
+[palettes.forest]
+sage = "#8fb573"
+moss = "#a7c080"
+fog = "#a3ad9f"
+leaf = "#83c092"
+bark = "#dbbc7f"
+berry = "#e67e80"
+text = "#dfe5da"
+
+[os]
+disabled = false
+style = "bold moss"
+format = "[$symbol ]($style)"
+[os.symbols]
+Arch = "󰣇"
+
+[username]
+show_always = true
+style_user = "bold text"
+format = "[$user]($style) "
+
+[directory]
+style = "bold leaf"
+format = "[󰉋 $path]($style)[$read_only]($read_only_style) "
+truncation_length = 3
+truncation_symbol = "…/"
+read_only = " 󰌾"
+
+[git_branch]
+symbol = " "
+style = "bark"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "berry"
+format = "([$all_status$ahead_behind]($style) )"
+
+[cmd_duration]
+min_time = 2000
+style = "fog"
+format = "[ $duration]($style)"
+
+[character]
+success_symbol = "[❯](bold sage)"
+error_symbol = "[❯](bold berry)"

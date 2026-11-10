@@ -1,0 +1,3 @@
+# Программы из Flathub
+org.onlyoffice.desktopeditors   # офис (Word/Excel/PowerPoint-совместимый)
+com.usebottles.bottles          # «песочницы» для запуска Windows-программ

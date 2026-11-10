@@ -1,0 +1,12 @@
+# Браузер: Vivaldi — красивый, гибкий, на движке Chromium (все сайты работают)
+vivaldi
+vivaldi-ffmpeg-codecs
+# Общение
+telegram-desktop
+discord
+# Работа и творчество
+obs-studio               # запись экрана / стримы
+kdenlive                 # видеомонтаж (замена DaVinci, подробности в README)
+frei0r-plugins           # эффекты для Kdenlive
+obsidian                 # заметки
+qbittorrent              # торренты

@@ -1,0 +1,73 @@
+# Графика: AMD Radeon RX 570 (открытый драйвер Mesa — лучший для AMD)
+mesa
+lib32-mesa
+vulkan-radeon
+lib32-vulkan-radeon
+vulkan-icd-loader
+lib32-vulkan-icd-loader
+libva-utils
+vulkan-tools
+mesa-utils
+xorg-xwayland
+# Звук: PipeWire
+pipewire
+pipewire-pulse
+pipewire-alsa
+pipewire-jack
+wireplumber
+lib32-pipewire
+lib32-libpulse
+lib32-alsa-plugins
+# KDE Plasma 6 (Wayland)
+plasma-meta
+plasma-workspace-wallpapers
+phonon-qt6-vlc
+qt6-multimedia-ffmpeg
+qt6-tools
+kvantum
+# Приложения KDE
+konsole
+dolphin
+kate
+ark
+gwenview
+okular
+kcalc
+filelight
+partitionmanager
+kio-admin
+ffmpegthumbs
+kdegraphics-thumbnailers
+kdialog
+haruna                   # видеоплеер
+xdg-user-dirs
+xdg-desktop-portal-gtk
+libnotify
+# Шрифты
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+inter-font
+ttf-jetbrains-mono-nerd
+ttf-liberation
+ttf-carlito
+ttf-caladea
+ttf-dejavu
+# Терминал
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+zsh-completions
+starship
+fastfetch
+eza
+bat
+btop
+jq
+# Архивы и прочее
+7zip
+unrar
+unzip
+zip
+fuse2                    # для AppImage-программ
+flatpak

@@ -1,0 +1,10 @@
+# Игры
+steam
+gamemode
+lib32-gamemode
+wine
+winetricks
+wine-mono
+wine-gecko
+lutris                   # Battle.net, EA, Ubisoft и любые .exe
+umu-launcher

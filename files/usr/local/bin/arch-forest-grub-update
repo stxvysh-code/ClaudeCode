@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Переустановка GRUB после его обновления (вызывается pacman-хуком).
+set -u
+grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB >/dev/null 2>&1 ||
+    echo "arch-forest: запись в NVRAM не удалась (используется запасной загрузчик)"
+grub-install --target=x86_64-efi --efi-directory=/efi --removable >/dev/null 2>&1
+grub-mkconfig -o /boot/grub/grub.cfg >/dev/null 2>&1
+echo "arch-forest: GRUB обновлён"

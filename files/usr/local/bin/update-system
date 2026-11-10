@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# arch-forest: обновить ВСЁ одной командой — система, AUR и Flatpak.
+# Перед обновлением автоматически создаётся снимок системы (snap-pac),
+# так что при проблеме можно откатиться через меню загрузки GRUB.
+set -uo pipefail
+G=$'\e[1;32m'; Y=$'\e[1;33m'; R=$'\e[0m'
+
+echo "${G}==> Обновление системы arch-forest${R}"
+if command -v paru >/dev/null; then
+    paru -Syu || echo "${Y}!! Обновление пакетов завершилось с ошибкой. Ничего не потеряно — пришли текст ошибки.${R}"
+else
+    sudo pacman -Syu || echo "${Y}!! Обновление пакетов завершилось с ошибкой.${R}"
+fi
+
+if command -v flatpak >/dev/null; then
+    echo "${G}==> Обновляю программы Flatpak${R}"
+    flatpak update -y || true
+fi
+
+echo
+echo "${G}==> Готово!${R} Если обновлялось ядро (linux-zen) — перезагрузи компьютер."
+if [[ -t 0 && -z "${NO_PAUSE:-}" ]]; then read -r -p "Нажми Enter, чтобы закрыть окно..." _; fi

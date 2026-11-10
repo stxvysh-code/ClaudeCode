@@ -1,0 +1,10 @@
+# После обновления GRUB — переустановить его в EFI-раздел (защита от несовместимости)
+[Trigger]
+Type = Package
+Operation = Upgrade
+Target = grub
+
+[Action]
+Description = Обновляю загрузчик GRUB в EFI-разделе...
+When = PostTransaction
+Exec = /usr/local/bin/arch-forest-grub-update

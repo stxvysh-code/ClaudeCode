@@ -1,0 +1,9 @@
+# Монитор гаснет через 15 минут, компьютер сам НЕ засыпает (загрузки и торренты не прервутся)
+[AC][Display]
+DimDisplayWhenIdle=true
+DimDisplayIdleTimeoutSec=600
+TurnOffDisplayWhenIdle=true
+TurnOffDisplayIdleTimeoutSec=900
+
+[AC][SuspendAndShutdown]
+AutoSuspendAction=0

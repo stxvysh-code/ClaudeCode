@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Toggle tiling
+Name[ru]=Тайлинг: вкл/выкл
+Comment=Arrange windows as tiles
+Comment[ru]=Раскладывать окна плиткой (Meta+Shift+T)
+Icon=view-grid
+Exec=/usr/local/bin/arch-forest-tiling
+Categories=Utility;
+NoDisplay=false
+X-KDE-Shortcuts=Meta+Shift+T

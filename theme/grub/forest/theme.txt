@@ -1,0 +1,63 @@
+# arch-forest — тема меню загрузки GRUB
+# Фон: обои «Path» (Risto Saukonpää, KDE, LGPL-3.0), затемнённые.
+title-text: ""
+desktop-image: "background.jpg"
+desktop-color: "#111412"
+terminal-font: "Forest Regular 16"
+terminal-left: "10%"
+terminal-top: "10%"
+terminal-width: "80%"
+terminal-height: "80%"
+
++ label {
+    top = 30%
+    left = 0
+    width = 100%
+    height = 40
+    align = "center"
+    text = "Arch Linux · arch-forest"
+    font = "Forest Bold 22"
+    color = "#a7c080"
+}
+
++ boot_menu {
+    left = 33%
+    top = 37%
+    width = 34%
+    height = 30%
+    item_font = "Forest Regular 22"
+    item_color = "#c9d1c4"
+    selected_item_font = "Forest Bold 22"
+    selected_item_color = "#111412"
+    selected_item_pixmap_style = "select_*.png"
+    item_height = 44
+    item_padding = 18
+    item_spacing = 8
+    icon_width = 0
+    icon_height = 0
+    item_icon_space = 0
+    scrollbar = false
+}
+
++ label {
+    id = "__timeout__"
+    top = 68%
+    left = 0
+    width = 100%
+    height = 30
+    align = "center"
+    color = "#9aa595"
+    font = "Forest Regular 16"
+    text = "Запуск через %d с"
+}
+
++ label {
+    top = 93%
+    left = 0
+    width = 100%
+    height = 30
+    align = "center"
+    color = "#6f7a6e"
+    font = "Forest Regular 16"
+    text = "↑ ↓ — выбор     Enter — запуск     «Arch Linux snapshots» — вернуть систему к прошлому снимку"
+}

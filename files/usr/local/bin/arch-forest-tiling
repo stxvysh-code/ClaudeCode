@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# arch-forest: включить/выключить тайлинг окон (Krohnkite). Горячая клавиша: Meta+Shift+T.
+set -u
+QDBUS=$(command -v qdbus6 || command -v qdbus || echo qdbus6)
+current=$(kreadconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled --default false)
+if [[ "$current" == "true" ]]; then
+    kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled false
+    "$QDBUS" org.kde.KWin /Scripting org.kde.kwin.Scripting.unloadScript krohnkite >/dev/null 2>&1
+    msg="Тайлинг выключен — окна снова свободные"; icon=window
+else
+    kwriteconfig6 --file kwinrc --group Plugins --key krohnkiteEnabled true
+    msg="Тайлинг включён — окна раскладываются плиткой"; icon=view-grid
+fi
+"$QDBUS" org.kde.KWin /KWin reconfigure >/dev/null 2>&1
+"$QDBUS" org.kde.KWin /Scripting org.kde.kwin.Scripting.start >/dev/null 2>&1
+notify-send -a "arch-forest" -i "$icon" "Тайлинг" "$msg" 2>/dev/null || true

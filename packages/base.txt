@@ -1,0 +1,38 @@
+# База системы (ставится через pacstrap). Ядро берётся из config.sh (KERNEL).
+base
+base-devel
+linux-firmware
+amd-ucode                # микрокод для процессора AMD
+mkinitcpio
+# Файловые системы
+btrfs-progs
+dosfstools
+e2fsprogs
+exfatprogs               # флешки exFAT
+ntfs-3g                  # диски/флешки из Windows
+# Загрузчик + снимки системы (откат в один клик)
+grub
+efibootmgr
+grub-btrfs
+inotify-tools
+snapper
+snap-pac
+btrfs-assistant          # графическая программа для снимков
+# Сеть и базовые утилиты
+networkmanager
+sudo
+nano
+vim
+git
+curl
+wget
+rsync
+man-db
+man-pages
+bash-completion
+reflector
+pacman-contrib
+zram-generator           # сжатая подкачка в памяти
+plymouth                 # красивая заставка при загрузке
+ufw                      # файрвол
+terminus-font

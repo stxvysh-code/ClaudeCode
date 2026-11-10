@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Update system
+Name[ru]=Обновить систему
+Comment=Update packages, AUR and Flatpak
+Comment[ru]=Обновить все программы и систему
+Icon=system-software-update
+Exec=konsole --hold -e /usr/local/bin/update-system
+Terminal=false
+Categories=System;
