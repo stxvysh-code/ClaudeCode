@@ -38,7 +38,15 @@ if (desktopsArray.length > 0) {
         bigClock.currentConfigGroup = ["Appearance"];
         bigClock.writeConfig("showDate", true);
         bigClock.writeConfig("dateDisplayFormat", 2);      // дата под временем
-        bigClock.writeConfig("dateFormat", "longDate");
+        // Дата всегда в две аккуратные строки («вторник» / «10 ноября»): виджет делает
+        // ширину даты равной ширине времени, и длинная строка иначе ломается где попало
+        bigClock.writeConfig("dateFormat", "custom");
+        bigClock.writeConfig("customDateFormat", "dddd\nd MMMM");
+        // Свой шрифт: у Noto Sans цифры одинаковой ширины — размер даты не «прыгает»
+        // каждую минуту (у Inter «11:11» заметно уже, чем «20:56»)
+        bigClock.writeConfig("autoFontAndSize", false);
+        bigClock.writeConfig("fontFamily", "Noto Sans");
+        bigClock.writeConfig("fontWeight", 300);
         bigClock.writeConfig("showSeconds", 0);
     }
 }

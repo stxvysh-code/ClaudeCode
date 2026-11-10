@@ -3,7 +3,7 @@
 title-text: ""
 desktop-image: "background.jpg"
 desktop-color: "#111412"
-terminal-font: "Forest Regular 16"
+terminal-font: "Forest Mono Regular 18"
 terminal-left: "10%"
 terminal-top: "10%"
 terminal-width: "80%"
@@ -47,7 +47,7 @@ terminal-height: "80%"
     height = 30
     align = "center"
     color = "#9aa595"
-    font = "Forest Regular 16"
+    font = "Forest Regular 18"
     text = "Запуск через %d с"
 }
 
@@ -58,6 +58,6 @@ terminal-height: "80%"
     height = 30
     align = "center"
     color = "#6f7a6e"
-    font = "Forest Regular 16"
+    font = "Forest Regular 18"
     text = "↑ ↓ — выбор     Enter — запуск     «Arch Linux snapshots» — вернуть систему к прошлому снимку"
 }

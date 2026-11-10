@@ -11,5 +11,12 @@ TerminalApplication=konsole
 TerminalService=org.kde.konsole.desktop
 BrowserApplication=vivaldi-stable.desktop
 
+[Icons]
+Theme=@ICONS@
+
+[KDE]
+LookAndFeelPackage=org.archforest.desktop
+widgetStyle=kvantum
+
 [WM]
 activeFont=Inter,10,-1,5,600,0,0,0,0,0,0,0,0,0,0,1

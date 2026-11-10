@@ -20,6 +20,7 @@ echo "===== $(date '+%F %T') firstboot $*"
 if [[ -f "$DONE" && "${1:-}" != "--force" ]]; then
     echo "уже выполнено"; rm -f "$AUTOSTART"; exit 0
 fi
+[[ "${1:-}" == "--force" ]] && rm -f "$STATE_DIR/attempts"
 
 QDBUS=$(command -v qdbus6 || command -v qdbus || echo qdbus6)
 notify() { notify-send -a "arch-forest" -i "${3:-preferences-desktop-theme}" "$1" "$2" 2>/dev/null || true; }
@@ -30,26 +31,31 @@ for _ in $(seq 1 120); do
     sleep 1
 done
 sleep 4
-notify "Настраиваю оформление" "Пара секунд — экран может моргнуть, это нормально 🌲"
 
-# 2. Иконки: Colloid, если установились, иначе Papirus
+# 2. Оформление. Обычно оно уже на месте: установщик заранее прописал глобальную
+#    тему «Лесная ночь», и Plasma при первом запуске сама создала наши панели,
+#    виджеты и обои. Пересоздаём раскладку, только если её почему-то нет
+#    (так безопаснее, чем пересобирать панели на работающем рабочем столе).
+APPLETSRC="$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc"
+if ! grep -q 'vivaldi-stable.desktop\|org.kde.dolphin.desktop' "$APPLETSRC" 2>/dev/null; then
+    echo "раскладки нет — применяю глобальную тему с раскладкой"
+    notify "Настраиваю оформление" "Пара секунд — экран может моргнуть, это нормально 🌲"
+    plasma-apply-lookandfeel --apply "$LNF" --resetLayout || echo "!! plasma-apply-lookandfeel не сработал"
+    sleep 3
+fi
+
+# Подстраховка по отдельным компонентам (каждая команда безопасна при повторе)
 ICONS=Colloid-Green-Everforest-Dark
 if [[ ! -d /usr/share/icons/$ICONS ]]; then
     ICONS=Papirus-Dark
     [[ -d /usr/share/icons/$ICONS ]] || ICONS=breeze-dark
 fi
-
-# 3. Глобальная тема «Лесная ночь»: цвета, Kvantum, иконки, курсор, панели, виджеты
-if ! plasma-apply-lookandfeel --apply "$LNF" --resetLayout; then
-    echo "!! plasma-apply-lookandfeel не сработал — применяю по частям"
-fi
-sleep 2
-
-# Подстраховка по отдельным компонентам (на случай, если что-то не применилось)
 plasma-apply-colorscheme Forest || true
 kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle kvantum
-kwriteconfig6 --file kdeglobals --group Icons --key Theme "$ICONS"
-[[ -x /usr/lib/plasma-changeicons ]] && /usr/lib/plasma-changeicons "$ICONS" || true
+if [[ "$(kreadconfig6 --file kdeglobals --group Icons --key Theme)" != "$ICONS" ]]; then
+    kwriteconfig6 --file kdeglobals --group Icons --key Theme "$ICONS"
+    if [[ -x /usr/lib/plasma-changeicons ]]; then /usr/lib/plasma-changeicons "$ICONS" || true; fi
+fi
 if [[ -d /usr/share/icons/Bibata-Modern-Classic ]]; then
     plasma-apply-cursortheme Bibata-Modern-Classic || true
 else
@@ -92,11 +98,35 @@ fi
 "$QDBUS" org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || true
 "$QDBUS" org.kde.KWin /Scripting org.kde.kwin.Scripting.start >/dev/null 2>&1 || true
 
-# 8. Готово — больше не запускаемся
+# 8. Проверяем, что оформление действительно применилось
+applied=1
+[[ "$(kreadconfig6 --file kdeglobals --group KDE --key LookAndFeelPackage)" == "$LNF" ]] || applied=0
+grep -q 'vivaldi-stable.desktop\|org.kde.dolphin.desktop' \
+    "$HOME/.config/plasma-org.kde.plasma.desktop-appletsrc" 2>/dev/null || applied=0
+
+ATTEMPTS_FILE="$STATE_DIR/attempts"
+attempts=$(( $(cat "$ATTEMPTS_FILE" 2>/dev/null || echo 0) + 1 ))
+echo "$attempts" > "$ATTEMPTS_FILE"
+
+if (( applied == 0 && attempts < 3 )); then
+    echo "!! оформление применилось не полностью — повторю при следующем входе (попытка $attempts)"
+    notify "Оформление применилось не полностью" \
+        "Ничего страшного: выйди из системы и войди снова (или перезагрузись) — настройка повторится." \
+        "dialog-warning"
+    exit 0
+fi
+
+# 9. Готово — больше не запускаемся
 touch "$DONE"
 rm -f "$AUTOSTART"
-echo "===== готово"
+echo "===== готово (попыток: $attempts, применено: $applied)"
 
-notify "Готово! Добро пожаловать в Arch 🌲" \
-    "Меню — кнопка Arch слева вверху (или клавиша Win). Тайлинг: Win+Shift+T. Обновление: значок в трее." \
-    "start-here"
+if (( applied == 1 )); then
+    notify "Готово! Добро пожаловать в Arch 🌲" \
+        "Меню — кнопка Arch слева вверху (или клавиша Win). Тайлинг: Win+Shift+T. Обновление: значок в трее." \
+        "start-here"
+else
+    notify "Оформление: не всё получилось" \
+        "Запусти в терминале:  /opt/arch-forest/firstboot.sh --force  и перезайди в систему." \
+        "dialog-warning"
+fi

@@ -26,7 +26,7 @@ export SNAP_PAC_SKIP=y          # не делать снимки на кажды
 trap 'err "Ошибка в chroot-setup.sh (строка $LINENO): $BASH_COMMAND"' ERR
 trap 'rm -f "$BUILD_SUDOERS" /root/.arch-forest-pass' EXIT
 
-note_failed() { echo "$*" >> "$FAILED"; warn "Не получилось: $*"; }
+note_failed() { grep -qxF -- "$*" "$FAILED" 2>/dev/null || echo "$*" >> "$FAILED"; warn "Не получилось: $*"; }
 
 # copy_tree SRC DST — копирует файлы по одному (права 644), не трогая права существующих папок
 copy_tree() {
@@ -170,17 +170,21 @@ setup_bootloader() {
     set_grub_var GRUB_GFXPAYLOAD_LINUX keep
     set_grub_var GRUB_DISABLE_RECOVERY true
     set_grub_var GRUB_DISABLE_OS_PROBER true
+    set_grub_var GRUB_DISABLE_BOOTNEXT true      # без лишних пунктов «(EFI BootNext)» от прошивки
 
     # Тема GRUB (шрифты генерируем из установленных TTF)
     local theme=/usr/share/grub/themes/forest
     rm -rf "$theme"; mkdir -p "$theme"
     cp -a "$AF_DIR/theme/grub/forest/." "$theme/"
     local reg=/usr/share/fonts/noto/NotoSans-Regular.ttf bold=/usr/share/fonts/noto/NotoSans-Bold.ttf
+    local mono=/usr/share/fonts/TTF/DejaVuSansMono.ttf
     [[ -f $reg ]] || reg=/usr/share/fonts/TTF/DejaVuSans.ttf
     [[ -f $bold ]] || bold=/usr/share/fonts/TTF/DejaVuSans-Bold.ttf
-    if grub-mkfont -s 22 -n "Forest Regular 22" -o "$theme/forest-regular-22.pf2" "$reg" 2>/dev/null &&
-       grub-mkfont -s 16 -n "Forest Regular 16" -o "$theme/forest-regular-16.pf2" "$reg" 2>/dev/null &&
-       grub-mkfont -s 22 -n "Forest Bold 22" -o "$theme/forest-bold-22.pf2" "$bold" 2>/dev/null; then
+    # -n задаёт семейство; полное имя = «семейство стиль размер», напр. «Forest Bold 22»
+    if grub-mkfont -s 22 -n Forest -o "$theme/forest-regular-22.pf2" "$reg" 2>/dev/null &&
+       grub-mkfont -s 18 -n Forest -o "$theme/forest-regular-18.pf2" "$reg" 2>/dev/null &&
+       grub-mkfont -s 22 -n Forest -o "$theme/forest-bold-22.pf2" "$bold" 2>/dev/null &&
+       grub-mkfont -s 18 -n "Forest Mono" -o "$theme/forest-mono-18.pf2" "$mono" 2>/dev/null; then
         set_grub_var GRUB_THEME "\"$theme/theme.txt\""
     else
         warn "Не удалось подготовить шрифты темы GRUB — будет стандартное меню"
@@ -379,16 +383,23 @@ setup_user_home() {
     info "Личные настройки пользователя (панели, терминал, тайлинг, раскладки)"
     # Английские имена папок (надёжнее для игр и программ); в Dolphin подписи будут на русском
     local d
-    for d in Desktop Documents Downloads Music Pictures Pictures/Screenshots Pictures/Wallpapers Videos Templates Public; do
+    for d in Desktop Documents Downloads Music Pictures Pictures/Screenshots Pictures/Wallpapers Videos Templates Public Projects; do
         install -d -o "$USERNAME" -g "$USERNAME" "$USER_HOME/$d"
     done
 
     copy_tree "$AF_DIR/home" "$USER_HOME"
     # Подстановки в конфигах
-    local tiling=false
+    local tiling=false icons=Colloid-Green-Everforest-Dark cursor=Bibata-Modern-Classic
     [[ "$TILING_ENABLED" == "1" ]] && tiling=true
-    { grep -rlZ '@USERNAME@\|@DATA_MOUNT@\|@TILING@' "$USER_HOME/.config" "$USER_HOME/.local" 2>/dev/null || true; } |
-        xargs -0 -r sed -i -e "s|@USERNAME@|$USERNAME|g" -e "s|@DATA_MOUNT@|$DATA_MOUNT|g" -e "s|@TILING@|$tiling|g"
+    [[ -d /usr/share/icons/$icons ]] || icons=Papirus-Dark
+    [[ -d /usr/share/icons/$icons ]] || icons=breeze-dark
+    [[ -d /usr/share/icons/$cursor ]] || cursor=breeze_cursors
+    { grep -rlZ '@USERNAME@\|@DATA_MOUNT@\|@TILING@\|@ICONS@\|@CURSOR@' "$USER_HOME/.config" "$USER_HOME/.local" 2>/dev/null || true; } |
+        xargs -0 -r sed -i -e "s|@USERNAME@|$USERNAME|g" -e "s|@DATA_MOUNT@|$DATA_MOUNT|g" -e "s|@TILING@|$tiling|g" \
+            -e "s|@ICONS@|$icons|g" -e "s|@CURSOR@|$cursor|g"
+    # Цвета «Лесная ночь» сразу в kdeglobals — Plasma стартует уже в нужных цветах
+    python3 "$AF_DIR/tools/merge-colors.py" /usr/share/color-schemes/Forest.colors "$USER_HOME/.config/kdeglobals" ||
+        warn "Не удалось заранее прописать цвета (применятся при первом входе)"
 
     if [[ -n "$HAS_DATA_DISK" ]]; then
         install -d "$DATA_MOUNT"
@@ -408,7 +419,8 @@ setup_user_home() {
 # ----------------------------------------------------------------------------
 finalize() {
     info "Снимок «чистая система» (к нему всегда можно вернуться)"
-    snapper --no-dbus -c root create -t single -d "arch-forest: чистая установка" --userdata important=yes || true
+    # Описание латиницей: GRUB показывает кириллицу из snapper как &#x...;
+    snapper --no-dbus -c root create -t single -d "arch-forest clean install" --userdata important=yes || true
     make_grub_cfg >/dev/null 2>&1 || true
 
     info "Очистка кэша пакетов"
